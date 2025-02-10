@@ -13,12 +13,12 @@ async function checkBounces() {
         port: 993,
         tls: true
     });
-
+  
     function openInbox(cb) {
         imap.openBox('INBOX', false, cb);
     }
 
-    imap.once('ready', function () {
+    imap.once('ready', function () { 
         openInbox(function (err, box) {
             if (err) throw err;
             imap.search(['UNSEEN'], function (err, results) {

@@ -1,9 +1,11 @@
 const express= require("express");
 const subscriber=express.Router();
-const {deleteSubscriber,addSubscriber,updateSubscriber,getSubscriber} =require("../controllers/subscribers")
+const {deleteSubscriber,addSubscriber,updateSubscriber,getSubscriber} =require("../controllers/subscribers");
+const { getSegmentSubscriber } = require("../controllers/segmentSubscribers");
 
 
-subscriber.get("/:id/subscribers/get",getSubscriber);
+subscriber.post("/:id/subscribers/get",getSegmentSubscriber);
+// subscriber.get("/:id/subscribers/get",getSubscriber);
 subscriber.patch("/:id/subscribers/pop",deleteSubscriber);
 subscriber.patch("/:id/subscribers/push",addSubscriber);
 subscriber.patch("/:id/subscribers/patch",updateSubscriber);

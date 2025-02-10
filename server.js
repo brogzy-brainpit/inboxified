@@ -10,7 +10,11 @@ const auth=require("./routes/createUser");
 const trackEmail=require("./routes/trackEmaill");
 const subscriber=require("./routes/subscriber");
 const template=require("./routes/template");
+const segment=require("./routes/segment");
+const groups=require("./routes/groups");
+const fields=require("./routes/fields");
 const publish=require("./routes/publish");
+const blogs=require("./routes/blogs");
 const mail=require("./routes/mail");
 const campaign=require("./routes/campaign");
 const preview=require("./routes/preview");
@@ -37,6 +41,10 @@ app.use("/api/v1/track",trackEmail)
 app.use("/api/v1/subscriber",subscriber)
 app.use("/api/v1/template",template)
 app.use("/api/v1/publish",publish) 
+app.use("/api/v1/blogs",blogs) 
+app.use("/api/v1/segment",segment)
+app.use("/api/v1/groups",groups)
+app.use("/api/v1/fields",fields)
 app.use("/api/v1/mail",mail);
 app.use("/api/v1/campaign",campaign);
 app.use("/preview-inboxified.com",preview);
@@ -47,7 +55,7 @@ app.use("/preview-inboxified.com",preview);
 // schedule.scheduleJob('* * * * * *', checkBounces);
      
 app.get("/",(req,res)=>{
-    res.send(`<p>server up and running</p>`)
+    res.send(`<p>server up and running...</p>`)
      })
   
 //   rabbitProvider(config)
@@ -55,7 +63,7 @@ app.get("/",(req,res)=>{
 
        
 //    })
-
+ 
 // offline server
 // var transport =nodemailer.createTransport({
 //     service:"gmail",
@@ -97,5 +105,5 @@ try {
 } catch (error) {  
     console.log(`connection to mongo failed ${error}`)  
 }  
-}
-startServer() 
+} 
+startServer(); 
