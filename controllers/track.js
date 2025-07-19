@@ -58,77 +58,62 @@ const getSingleTracker= async(req,res)=>{
        res.status(403).send(error)
       }
     }
-  const openRate = async (req, res) => {
-  try {
-    const { guid } = req.params;
-    const userId = req.query.userId;
-    const userAgent = req.headers["user-agent"];
+    const openRate= async(req,res)=>{
+      
+      try {
+     const { guid } = req.params;
+    const userAgent = req.headers['user-agent'];
     const deviceInfo = userAgentParser(userAgent);
+    // $addToSet:{
+    //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+    //   emailClients:deviceInfo.browser.name || "unknown",
+    // }
+    if(guid){
 
-    if (!guid || !userId) {
-      return res.status(400).json({ msg: "No tracker ID or user ID provided" });
-    }
+       const updateTracker= await Track.findOneAndUpdate({trackerId:guid},{
+          $inc:{opens:1},
+          $push:{stats:
+            { 
+              type:"open",
+              date:Date.now(),
+              devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+            emailClients:deviceInfo.browser.name || "unknown",
+            }
+          },
+          // $setOnInsert:{clicks:0,devices:{},emailClients:{},readDurations:[]},
+          // $addToSet:{
+          //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+          //   emailClients:deviceInfo.browser.name || "unknown",
 
-    // First check if the contact already opened it
-    const tracker = await Track.findOne({
-      trackerId: guid,
-      "contacts.userId": userId
-    });
-
-    const contact = tracker?.contacts.find(c => c.userId === userId);
-
-    if (contact && contact.opened) {
-      // Already opened, just return the pixel
-      const img = Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=",
-        "base64"
-      );
-      res.writeHead(200, {
-        "Content-Type": "image/png",
-        "Content-Length": img.length,
-      });
-      return res.end(img);
-    }
-
-    // Now perform the update only if not opened before
-    await Track.findOneAndUpdate(
-      {
-        trackerId: guid,
-        "contacts.userId": userId,
-        "contacts.opened": false
-      },
-      {
-        $set: { "contacts.$.opened": true },
-        $inc: { opens: 1 },
-        $push: {
-          stats: {
-            type: "open",
-            date: Date.now(),
-            devices: {
-              type: deviceInfo.device.type || "unknown",
-              os: deviceInfo.os.name || "unknown",
-            },
-            emailClients: deviceInfo.browser.name || "unknown",
-          }
-        }
-      }
-    );
-
+          // }
+        })
+        if(updateTracker){
+         // Respond with a 1x1 transparent pixel
     const img = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=",
-      "base64"
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=',
+        'base64'
     );
     res.writeHead(200, {
-      "Content-Type": "image/png",
-      "Content-Length": img.length,
+        'Content-Type': 'image/png',
+        'Content-Length': img.length
     });
     res.end(img);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Something went wrong" });
-  }
-};
 
+        }else{
+      res.status(404).json({msg:"something went wrong updating trackers"})
+
+        }
+        
+      }else{
+        res.status(404).json({msg:" no guid provided"})
+      }
+      } catch (error) {
+      res.status(500).json({msg:"something went wrong, try again later!"})
+        
+      }
+
+        
+    }
       const clickRate= async(req,res)=>{
         try {
           const { guid } = req.params;
