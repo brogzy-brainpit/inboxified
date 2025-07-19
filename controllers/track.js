@@ -120,7 +120,7 @@ const getSingleTracker= async(req,res)=>{
 
 
 
-      const clickRate= async(req,res)=>{
+     const clickRate= async(req,res)=>{
         try {
           const { guid } = req.params;
           const { url} = req.query;
@@ -153,6 +153,7 @@ const getSingleTracker= async(req,res)=>{
              
            }
         }
+    
     
       const trackStats= async(req,res)=>{
         const { guid } = req.params;
