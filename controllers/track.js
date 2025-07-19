@@ -58,62 +58,50 @@ const getSingleTracker= async(req,res)=>{
        res.status(403).send(error)
       }
     }
-  const openRate= async(req,res)=>{
-      
-      try {
-     const { guid } = req.params;
-    const userAgent = req.headers['user-agent'];
-    const deviceInfo = userAgentParser(userAgent);
-    // $addToSet:{
-    //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
-    //   emailClients:deviceInfo.browser.name || "unknown",
-    // }
-    if(guid){
+ 
+const Track = require("../models/Track");
 
-       const updateTracker= await Track.findOneAndUpdate({trackerId:guid},{
-          $inc:{opens:1},
-          $push:{stats:
-            { 
-              type:"open",
-              date:Date.now(),
-              devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
-            emailClients:deviceInfo.browser.name || "unknown",
-            }
-          },
-          // $setOnInsert:{clicks:0,devices:{},emailClients:{},readDurations:[]},
-          // $addToSet:{
-          //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
-          //   emailClients:deviceInfo.browser.name || "unknown",
+const openRate= async (req, res) => {
+  const { guid } = req.params;
+  const email = req.query.email; // must be added to the pixel URL
 
-          // }
-        })
-        if(updateTracker){
-         // Respond with a 1x1 transparent pixel
-    const img = Buffer.from(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=',
-        'base64'
-    );
-    res.writeHead(200, {
-        'Content-Type': 'image/png',
-        'Content-Length': img.length
-    });
-    res.end(img);
+  try {
+    if (!guid || !email) return res.status(400).end();
 
-        }else{
-      res.status(404).json({msg:"something went wrong updating trackers"})
+    const tracker = await Track.findOne({ trackerId: guid });
+    if (!tracker) return res.status(404).end();
 
-        }
-        
-      }else{
-        res.status(404).json({msg:" no guid provided"})
-      }
-      } catch (error) {
-      res.status(500).json({msg:"something went wrong, try again later!"})
-        
-      }
+    const subscriberIndex = tracker.totalSubscribers.findIndex(sub => sub.email === email);
 
-        
+    if (subscriberIndex !== -1 && !tracker.totalSubscribers[subscriberIndex].opened) {
+      tracker.totalSubscribers[subscriberIndex].opened = true;
+      tracker.totalSubscribers[subscriberIndex].openAt = new Date();
+      tracker.opens += 1;
+      tracker.stats.push({
+        type: "open",
+        emailClients: req.headers["user-agent"],
+        date: new Date(),
+      });
+
+      await tracker.save();
     }
+
+    // 1x1 pixel transparent image response
+    const pixel = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      "base64"
+    );
+    res.setHeader("Content-Type", "image/gif");
+    res.setHeader("Content-Length", pixel.length);
+    res.end(pixel);
+
+    
+  } catch (err) {
+    res.status(500).end();
+  }
+};
+
+module.exports = trackOpen;
 
 
 
