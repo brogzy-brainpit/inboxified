@@ -58,82 +58,62 @@ const getSingleTracker= async(req,res)=>{
        res.status(403).send(error)
       }
     }
-   const openRate = async (req, res) => {
-  try {
-    const { guid } = req.params;
-    const userId = req.query.userId; // Required in query
-    const userAgent = req.headers["user-agent"];
+  const openRate= async(req,res)=>{
+      
+      try {
+     const { guid } = req.params;
+    const userAgent = req.headers['user-agent'];
     const deviceInfo = userAgentParser(userAgent);
+    // $addToSet:{
+    //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+    //   emailClients:deviceInfo.browser.name || "unknown",
+    // }
+    if(guid){
 
-    if (!guid || !userId) {
-      return res.status(400).json({ msg: "No tracker ID or user ID provided" });
-    }
+       const updateTracker= await Track.findOneAndUpdate({trackerId:guid},{
+          $inc:{opens:1},
+          $push:{stats:
+            { 
+              type:"open",
+              date:Date.now(),
+              devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+            emailClients:deviceInfo.browser.name || "unknown",
+            }
+          },
+          // $setOnInsert:{clicks:0,devices:{},emailClients:{},readDurations:[]},
+          // $addToSet:{
+          //   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+          //   emailClients:deviceInfo.browser.name || "unknown",
 
-    const trackDoc = await Track.findOne({
-      trackerId: guid,
-      "totalSubscribers.userId": userId
-    });
-
-    if (!trackDoc) {
-      return res.status(404).json({ msg: "Tracker or contact not found" });
-    }
-
-    const userEntry = trackDoc.totalSubscribers.find(
-      (sub) => sub.userId === userId
-    );
-
-    // 🧠 Already opened? Don’t increment again.
-    if (userEntry.opened) {
-      // Still return the pixel
-      const img = Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=",
-        "base64"
-      );
-      res.writeHead(200, {
-        "Content-Type": "image/png",
-        "Content-Length": img.length
-      });
-      return res.end(img);
-    }
-
-    // 🧠 First open — mark and log
-    await Track.findOneAndUpdate(
-      {
-        trackerId: guid,
-        "totalSubscribers.userId": userId
-      },
-      {
-        $set: { "totalSubscribers.$.opened": true },
-        $inc: { opens: 1 },
-        $push: {
-          stats: {
-            type: "open",
-            date: Date.now(),
-            devices: {
-              type: deviceInfo.device.type || "unknown",
-              os: deviceInfo.os.name || "unknown"
-            },
-            emailClients: deviceInfo.browser.name || "unknown"
-          }
-        }
-      }
-    );
-
-    // Always return 1x1 pixel
+          // }
+        })
+        if(updateTracker){
+         // Respond with a 1x1 transparent pixel
     const img = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=",
-      "base64"
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/pmFEkYAAAAASUVORK5CYII=',
+        'base64'
     );
     res.writeHead(200, {
-      "Content-Type": "image/png",
-      "Content-Length": img.length
+        'Content-Type': 'image/png',
+        'Content-Length': img.length
     });
     res.end(img);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Something went wrong" });
-  }
-};
+
+        }else{
+      res.status(404).json({msg:"something went wrong updating trackers"})
+
+        }
+        
+      }else{
+        res.status(404).json({msg:" no guid provided"})
+      }
+      } catch (error) {
+      res.status(500).json({msg:"something went wrong, try again later!"})
+        
+      }
+
+        
+    }
 
 
 
