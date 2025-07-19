@@ -1,0 +1,150 @@
+const jwt= require("jsonwebtoken");
+const User= require("../model/userAuth");
+
+require("dotenv").config()
+
+const getSegmentSubscriber= async(req,res)=>{
+try {
+  console.log(req.body)
+  const userId= req.params.id
+  const filterConditions= req.body.filterCondition;
+
+
+  const buildSubscriberFilterQuery = (filters) => {
+    return filters.map(filter => {
+      const { field, operator, value, value2 } = filter;
+      if (operator === 'contains') {
+        return { $regexMatch: { input: `$$contact.${field}`, regex: value, options: 'i' } };
+      }
+      if (operator === 'last') {
+        const targetDate = moment().subtract(value, value2).toDate();
+        return { [field]: { $gte: targetDate } };
+      }  
+   
+      if (operator === 'equals') { 
+        return { [field]: value };
+      }
+  
+      // Add more operator handling as needed
+      return {};
+    });
+  };
+
+  const buildAggregationFilter = (conditions) => {
+    return conditions.map(condition => {
+      const { type, filters } = condition;
+      const mongoFilters = buildSubscriberFilterQuery(filters);
+  
+      if (type === 'AND') {
+        return { $and: mongoFilters };
+      } else if (type === 'OR') {
+        return { $or: mongoFilters };
+      }
+    });
+  };
+
+  const aggregationPipeline = [
+    {
+      $match: {
+        _id: userId // Find the specific user
+      }
+    },
+    {
+      $project: {
+        name: 1, // Return other user fields as needed
+        contacts: {
+          $filter: {
+            input: "$contacts",
+            as: "contact",
+            cond: {
+              $or: buildAggregationFilter(filterConditions)
+            }
+          }
+        }
+      }
+    }
+  ];
+  const result = await User.aggregate(aggregationPipeline).exec();
+  console.log(result);
+res.status(200).json({result})
+
+} catch (error) {
+  console.log(error);
+  res.status(403).send(error)
+}
+
+};
+
+module.exports= {getSegmentSubscriber}
+
+
+
+// const userId = 'user_id'; // Replace with the actual user ID
+// const filterConditions = [
+//   {
+//     type: "OR",
+//     filters: [
+//       { field: "dateJoined", operator: "last", value: 5, value2: "days" },
+//       { field: "email", operator: "contains", value: "@gmail.com" },
+//       { field: "email", operator: "does not contains", value: "@yandex" },
+//     ]
+//   },
+//   {
+//     type: "OR",
+//     filters: [
+//       { field: "dateJoined", operator: "is before", value: 986227227727},
+//       { field: "email", operator: "contains", value: "@gmail.com" },
+//       { field: "email", operator: "does not contains", value: "@yandex" },
+//     ]
+//   },
+// ];
+
+[
+  {
+    _id:8272722278222,
+    name:"muhammad",
+    email:"dn@g.com",
+    subscribers:[
+      {
+        name:"user",
+        email:"daniel@xample.com",
+        dateJoined:226222672
+      },
+      {
+        name:"user2",
+        email:"daniel2@xample.com",
+        dateJoined:6546222672
+      },
+      {
+        name:"user3",
+        email:"daniel3@xample.com",
+        dateJoined:226222672
+      },
+    ]
+  }, {
+    _id:3456664,
+    name:"umar",
+    email:"dansn@g.com",
+    subscribers:[
+      {
+        name:"user",
+        email:"daniel@xample.com",
+        dateJoined:226222672
+      },
+      {
+        name:"user2",
+        email:"daniel2@xample.com",
+        dateJoined:6546222672
+      },
+      {
+        name:"user3",
+        email:"daniel3@xample.com",
+        dateJoined:226222672
+      },
+    ]
+  }
+]
+
+// Execute the aggregation pipeline
+
+
