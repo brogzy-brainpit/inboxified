@@ -60,7 +60,7 @@ const getSingleTracker= async(req,res)=>{
     }
    const openRate = async (req, res) => {
   try {
-    const { trackingId } = req.params;
+    const { guid } = req.params;
     const userId = req.query.userId; // Required in query
     const userAgent = req.headers["user-agent"];
     const deviceInfo = userAgentParser(userAgent);
