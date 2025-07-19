@@ -67,7 +67,7 @@ const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML) => {
 const contact = sanitizeContact(contacts[sent]);
 const personalizedHtml = compileTemplate(contact);
 
-          //  console.log(personalizedHtml)
+           console.log(personalizedHtml)
             sender({
               from: from,
               to: contact.email,

@@ -59,7 +59,7 @@ const getSingleTracker= async(req,res)=>{
       }
     }
  
-const Track = require("../models/Track");
+
 
 const openRate= async (req, res) => {
   const { guid } = req.params;
@@ -101,7 +101,7 @@ const openRate= async (req, res) => {
   }
 };
 
-module.exports = trackOpen;
+<div style="display:none"><img src="https://inboxified.vercel.app/api/v1/track/open/trkQdQgq19QY56gooqAYc9Qoo1dd?email=memetsamples@gmail.com" width="1" height="1" style="display:none" /></div>
 
 
 
