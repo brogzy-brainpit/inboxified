@@ -64,7 +64,8 @@ const getSingleTracker= async(req,res)=>{
 const openRate= async (req, res) => {
   const { guid } = req.params;
   const email = req.query.email; // must be added to the pixel URL
-
+console.log(email)
+console.log(guid)
   try {
     if (!guid || !email) return res.status(400).end();
 
@@ -100,10 +101,6 @@ const openRate= async (req, res) => {
     res.status(500).end();
   }
 };
-
-<div style="display:none"><img src="https://inboxified.vercel.app/api/v1/track/open/trkQdQgq19QY56gooqAYc9Qoo1dd?email=memetsamples@gmail.com" width="1" height="1" style="display:none" /></div>
-
-
 
 
 
