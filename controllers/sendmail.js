@@ -194,7 +194,7 @@ let contacts=[
   }
 ]
 
-    // console.log(` the user id id${userId}`)
+    console.log(` the user id frorv ${userId}`)
 try {
     
   await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML,userId)
