@@ -1,5 +1,5 @@
 const jwt= require("jsonwebtoken");
-const User= require("../model/userAuth");
+// const User= require("../model/userAuth");
 const Track= require("../model/campaignAuth");
 const userAgentParser = require('user-agent-parser');
 require("dotenv").config()
@@ -61,8 +61,47 @@ const getSingleTracker= async(req,res)=>{
  
 
 
+const openRatex= async (req, res) => {
+  const { guid } = req.params;
+  const email = req.query.email; // must be added to the pixel URL
+console.log(email)
+console.log(guid)
+  try {
+    if (!guid || !email) return res.status(400).end();
 
-const openRatex = async (req, res) => {
+    const tracker = await Track.findOne({ trackerId: guid });
+    if (!tracker) return res.status(404).end();
+
+    const subscriberIndex = tracker.totalSubscribers.findIndex(sub => sub.email === email);
+
+    if (subscriberIndex !== -1 && !tracker.totalSubscribers[subscriberIndex].opened) {
+      tracker.totalSubscribers[subscriberIndex].opened = true;
+      tracker.totalSubscribers[subscriberIndex].openAt = new Date();
+      tracker.opens += 1;
+      tracker.stats.push({
+        type: "open",
+        emailClients: req.headers["user-agent"],
+        date: new Date(),
+      });
+
+      await tracker.save();
+    }
+
+    // 1x1 pixel transparent image response
+    const pixel = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      "base64"
+    );
+    res.setHeader("Content-Type", "image/gif");
+    res.setHeader("Content-Length", pixel.length);
+    res.end(pixel);
+
+    
+  } catch (err) {
+    res.status(500).end();
+  }
+};
+const openRate = async (req, res) => {
   const { trackingId } = req.params;
   const { email } = req.query;
 
@@ -82,7 +121,7 @@ const openRatex = async (req, res) => {
 
       // Optional: record stats
       campaign.stats.push({
-        type: "open", 
+        type: "open",
         emailClients: req.headers["user-agent"],
         devices: {
           type: "unknown",
@@ -101,110 +140,6 @@ const openRatex = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
-const openRate2 = async (req, res) => {
-  const { trackingId } = req.params;
-  const email = req.query.email?.toLowerCase().trim();
-
-  try {
-    const campaign = await Track.findOne({ trackerId: trackingId });
-    if (!campaign) return res.status(404).send("Campaign not found");
-
-    const subscriber = campaign.totalSubscribers.find(sub => sub.email.toLowerCase() === email);
-    if (!subscriber) return res.status(404).send("Subscriber not in this campaign");
-
-    if (!subscriber.opened) {
-      // ✅ 1. Update the campaign
-      subscriber.opened = true;
-      subscriber.openAt = new Date();
-      campaign.opens += 1;
-      campaign.stats.push({
-        type: "open",
-        date: Date.now(),
-        emailClients: req.headers["user-agent"],
-        devices: { type: "unknown", os: "unknown" }
-      });
-      await campaign.save();
-
-      // ✅ 2. Update the user's contact info
-      const trackingUserId = campaign.trackingUser;
-
-      await User.updateOne(
-        { _id: trackingUserId, "contacts.email": email },
-        { $inc: { "contacts.$.totalOpens": 1 } }
-      );
-    }
-
-    // ✅ Return pixel
-    const img = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8HwQACfsD/qHTGSoAAAAASUVORK5CYII=",
-      "base64"
-    );
-    res.set("Content-Type", "image/png");
-    res.send(img);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-};
-const openRate = async (req, res) => {
-  const { trackingId } = req.params;
-  const email = req.query.email?.toLowerCase().trim();
-
-  try {
-    const campaign = await Track.findOne({ trackerId: trackingId });
-    if (!campaign) return res.status(404).send("Campaign not found");
-
-    const subscriber = campaign.totalSubscribers.find(sub => sub.email.toLowerCase() === email);
-    if (!subscriber) return res.status(404).send("Subscriber not in this campaign");
-
-    const trackingUserId = campaign.trackingUser;
-
-    // ✅ Increment `emailOpens` for every open, even repeat ones
-    const userUpdate = {
-      $inc: { "contacts.$.emailOpens": 1 }
-    };
-
-    // ✅ If this is the first open, also set 'opened', 'openAt', increment total opens, etc.
-    if (!subscriber.opened) {
-      subscriber.opened = true;
-      subscriber.openAt = new Date();
-      campaign.opens += 1;
-      campaign.stats.push({
-        type: "open",
-        date: Date.now(),
-        emailClients: req.headers["user-agent"],
-        devices: { type: "unknown", os: "unknown" }
-      });
-    //   totalOpens:{type:Number,default:0},
-    // emailOpens:{type:Number,default:0},
-
-      userUpdate.$inc["contacts.$.totalOpens"] = 1;
-
-      await campaign.save();
-    }
-
-    // ✅ Update user contacts
-    await User.updateOne(
-      { _id: trackingUserId, "contacts.email": email },
-      userUpdate
-    );
-
-    // ✅ Return tracking pixel
-    const img = Buffer.from(
-      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8HwQACfsD/qHTGSoAAAAASUVORK5CYII=",
-      "base64"
-    );
-    res.set("Content-Type", "image/png");
-    res.send(img);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-};
-
 
 
 
