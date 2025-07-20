@@ -123,7 +123,7 @@ res.status(500).send('server error ')
        
    }
      const mail=async(req,res)=>{
-    const{subject,mailList,ht,from,sendHTML}=req.body
+    const{subject,mailList,ht,from,sendHTML,userId}=req.body
     // const contact= mailList.split(",")
     // console.log(ht)
    // 1. Compile the raw HTML with Handlebars
@@ -194,10 +194,10 @@ let contacts=[
   }
 ]
 
-
+    // console.log(` the user id id${userId}`)
 try {
     
-  await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML)
+  await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML,userId)
    res.status(200).send(`All messages queued, ready to start sending!`)
         
 }catch{

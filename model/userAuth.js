@@ -16,7 +16,7 @@ const contactSchema = new mongoose.Schema({
     signUpSource:{type:String},
     totalOpens:{type:Number,default:0},
     emailOpens:{type:Number,default:0},
-    emailSent:{type:Number,default:0},
+    totalEmailSent:{type:Number,default:0},
     emailClicks:{type:Number,default:0},
     openRate:{type:Number,default:0},
     clickRate:{type:Number,default:0},
