@@ -102,44 +102,60 @@ console.log(guid)
   }
 };
 const openRate = async (req, res) => {
-  const { trackingId } = req.params;
-  const { email } = req.query;
+  const { guid } = req.params;
+  const email = req.query.email?.toLowerCase().trim();
 
   try {
-    const campaign = await Track.findOne({ trackerId: trackingId });
+    const campaign = await Track.findOne({ trackerId: guid });
     if (!campaign) return res.status(404).send("Campaign not found");
 
-    // Find subscriber by email
-    const subscriber = campaign.totalSubscribers.find(sub => sub.email === email);
-    if (!subscriber) return res.status(404).send("Subscriber not found");
+    const subscriber = campaign.totalSubscribers.find(sub => sub.email.toLowerCase() === email);
+    if (!subscriber) return res.status(404).send("Subscriber not in this campaign");
 
-    // Only update if not already opened
+    const trackingUserId = campaign.trackingUser;
+
+    // ✅ Increment `emailOpens` for every open, even repeat ones
+    const userUpdate = {
+      $inc: { "contacts.$.emailOpens": 1 }
+    };
+
+    // ✅ If this is the first open, also set 'opened', 'openAt', increment total opens, etc.
     if (!subscriber.opened) {
       subscriber.opened = true;
       subscriber.openAt = new Date();
       campaign.opens += 1;
-
-      // Optional: record stats
       campaign.stats.push({
         type: "open",
+        date: Date.now(),
         emailClients: req.headers["user-agent"],
-        devices: {
-          type: "unknown",
-          os: "unknown"
-        },
+        devices: { type: "unknown", os: "unknown" }
       });
+
+      userUpdate.$inc["contacts.$.totalOpens"] = 1;
 
       await campaign.save();
     }
 
-    // Return a 1x1 pixel
+    // ✅ Update user contacts
+    await User.updateOne(
+      { _id: trackingUserId, "contacts.email": email },
+      userUpdate
+    );
+
+    // ✅ Return tracking pixel
+    const img = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8HwQACfsD/qHTGSoAAAAASUVORK5CYII=",
+      "base64"
+    );
     res.set("Content-Type", "image/png");
-    res.send(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8HwQACfsD/qHTGSoAAAAASUVORK5CYII=", "base64"));
+    res.send(img);
+
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).send("Server error");
   }
 };
+
 
 
 
