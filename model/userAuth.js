@@ -14,6 +14,7 @@ const contactSchema = new mongoose.Schema({
     status:{type:String,default:"active"},
     condition:{type:String,default:"unverified"},
     signUpSource:{type:String},
+    totalOpens:{type:Number,default:0},
     emailOpens:{type:Number,default:0},
     emailSent:{type:Number,default:0},
     emailClicks:{type:Number,default:0},
