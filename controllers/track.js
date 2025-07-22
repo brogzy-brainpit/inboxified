@@ -1,5 +1,5 @@
 const jwt= require("jsonwebtoken");
-// const User= require("../model/userAuth");
+const User= require("../model/userAuth");
 const Track= require("../model/campaignAuth");
 const userAgentParser = require('user-agent-parser');
 require("dotenv").config()
@@ -102,11 +102,13 @@ console.log(guid)
   }
 };
 const openRate = async (req, res) => {
-  const { guid} = req.params;
+  const { guid } = req.params;
   const email = req.query.email?.toLowerCase().trim();
 
   try {
-    const campaign = await Track.findOne({ trackerId: guid});
+    if (!guid || !email) return res.status(400).send("Missing guid or email");
+
+    const campaign = await Track.findOne({ trackerId: guid });
     if (!campaign) return res.status(404).send("Campaign not found");
 
     const subscriber = campaign.totalSubscribers.find(sub => sub.email.toLowerCase() === email);
@@ -114,12 +116,13 @@ const openRate = async (req, res) => {
 
     const trackingUserId = campaign.trackingUser;
 
-    // ✅ Increment `emailOpens` for every open, even repeat ones
+    // ✅ Always increment emailOpens
     const userUpdate = {
-      $inc: { "contacts.$.emailOpens": 1 }
+      $inc: { "contacts.$.emailOpens": 1 },
+      $set: { "contacts.$.condition": "verified" } // ✅ Mark as verified
     };
 
-    // ✅ If this is the first open, also set 'opened', 'openAt', increment total opens, etc.
+    // ✅ Only on first open
     if (!subscriber.opened) {
       subscriber.opened = true;
       subscriber.openAt = new Date();
@@ -136,11 +139,15 @@ const openRate = async (req, res) => {
       await campaign.save();
     }
 
-    // ✅ Update user contacts
-    await User.updateOne(
+    // ✅ Update user's contact in database
+    const updateResult = await User.updateOne(
       { _id: trackingUserId, "contacts.email": email },
       userUpdate
     );
+
+    if (updateResult.modifiedCount === 0) {
+      console.warn("⚠️ No contact updated. Possibly wrong email or user ID.");
+    }
 
     // ✅ Return tracking pixel
     const img = Buffer.from(
@@ -151,7 +158,7 @@ const openRate = async (req, res) => {
     res.send(img);
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ openRate error:", err);
     res.status(500).send("Server error");
   }
 };
