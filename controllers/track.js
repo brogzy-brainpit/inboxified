@@ -166,11 +166,11 @@ const openRate = async (req, res) => {
 
 
 
-     const clickRate= async(req,res)=>{
+     const clickRatex= async(req,res)=>{
         try {
           const { guid } = req.params;
           const { url} = req.query;
-          console.log(url);
+          // console.log(url);
          const userAgent = req.headers['user-agent'];
          const deviceInfo = userAgentParser(userAgent);
          if(guid && url){
@@ -199,7 +199,78 @@ const openRate = async (req, res) => {
              
            }
         }
-    
+    const userAgentParser = require("ua-parser-js");
+const Track = require("../model/trackModel");
+const User = require("../model/userAuth");
+
+const clickRate = async (req, res) => {
+  const { guid } = req.params;
+  const email = req.query.email?.toLowerCase().trim();
+  const url = req.query.url;
+
+  const userAgent = req.headers["user-agent"];
+  const deviceInfo = userAgentParser(userAgent);
+
+  if (!guid || !url || !email) {
+    return res.status(400).json({ msg: "Missing guid, url, or email" });
+  }
+
+  try {
+    // 1️⃣ Update campaign tracking
+    const campaign = await Track.findOne({ trackerId: guid });
+    if (!campaign) {
+      return res.status(404).json({ msg: "Campaign not found" });
+    }
+
+    const subscriber = campaign.totalSubscribers.find(
+      (sub) => sub.email.toLowerCase() === email
+    );
+    if (!subscriber) {
+      return res.status(404).json({ msg: "Subscriber not in campaign" });
+    }
+
+    if (!subscriber.clicked) {
+      subscriber.clicked = true;
+      subscriber.clickAt = new Date();
+    }
+
+    campaign.clicks += 1;
+    campaign.stats.push({
+      type: "click",
+      date: Date.now(),
+      devices: {
+        type: deviceInfo.device.type || "unknown",
+        os: deviceInfo.os.name || "unknown",
+      },
+      emailClients: deviceInfo.browser.name || "unknown",
+    });
+
+    await campaign.save();
+
+    // 2️⃣ Update User Contact (push URL + timestamp)
+    const userId = campaign.trackingUser;
+    await User.updateOne(
+      { _id: userId, "contacts.email": email },
+      {
+        $inc: { "contacts.$.totalClicks": 1 },
+        $set: { "contacts.$.clickAt": new Date() }, // update every time (optional)
+        $push: {
+          "contacts.$.clicks": {
+            url,
+            clickedAt: new Date(),
+          },
+        },
+      }
+    );
+
+    // 3️⃣ Redirect
+    return res.redirect(url);
+  } catch (error) {
+    console.error("❌ Click tracking failed:", error.message);
+    return res.status(500).json({ msg: "Something went wrong, try again later." });
+  }
+};
+
     
       const trackStats= async(req,res)=>{
         const { guid } = req.params;
