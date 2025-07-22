@@ -81,17 +81,22 @@ const openRate = async (req, res) => {
       $set: { "contacts.$.condition": "verified" } // ✅ Mark as verified
     };
 
+  const userAgent = req.headers["user-agent"];
+  const deviceInfo = userAgentParser(userAgent);
     // ✅ Only on first open
     if (!subscriber.opened) {
       subscriber.opened = true;
       subscriber.openAt = new Date();
       campaign.opens += 1;
       campaign.stats.push({
-        type: "open",
-        date: Date.now(),
-        emailClients: req.headers["user-agent"],
-        devices: { type: "unknown", os: "unknown" }
-      });
+      type: "click",
+      date: Date.now(),
+      devices: {
+        type: deviceInfo.device.type || "unknown",
+        os: deviceInfo.os.name || "unknown",
+      },
+      emailClients: deviceInfo.browser.name || "unknown",
+    });
 
       userUpdate.$inc["contacts.$.totalOpens"] = 1;
 
