@@ -102,11 +102,11 @@ console.log(guid)
   }
 };
 const openRate = async (req, res) => {
-  const { guid } = req.params;
+  const { guid} = req.params;
   const email = req.query.email?.toLowerCase().trim();
 
   try {
-    const campaign = await Track.findOne({ trackerId: guid });
+    const campaign = await Track.findOne({ trackerId: guid});
     if (!campaign) return res.status(404).send("Campaign not found");
 
     const subscriber = campaign.totalSubscribers.find(sub => sub.email.toLowerCase() === email);
