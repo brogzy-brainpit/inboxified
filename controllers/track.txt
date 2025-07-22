@@ -1,8 +1,7 @@
 const jwt= require("jsonwebtoken");
 const User= require("../model/userAuth");
 const Track= require("../model/campaignAuth");
-// const userAgentParser = require('user-agent-parser');
- const userAgentParser = require("ua-parser-js");
+const userAgentParser = require('user-agent-parser');
 require("dotenv").config()
 const emailStats = {};
 
@@ -60,6 +59,48 @@ const getSingleTracker= async(req,res)=>{
       }
     }
  
+
+
+const openRatex= async (req, res) => {
+  const { guid } = req.params;
+  const email = req.query.email; // must be added to the pixel URL
+console.log(email)
+console.log(guid)
+  try {
+    if (!guid || !email) return res.status(400).end();
+
+    const tracker = await Track.findOne({ trackerId: guid });
+    if (!tracker) return res.status(404).end();
+
+    const subscriberIndex = tracker.totalSubscribers.findIndex(sub => sub.email === email);
+
+    if (subscriberIndex !== -1 && !tracker.totalSubscribers[subscriberIndex].opened) {
+      tracker.totalSubscribers[subscriberIndex].opened = true;
+      tracker.totalSubscribers[subscriberIndex].openAt = new Date();
+      tracker.opens += 1;
+      tracker.stats.push({
+        type: "open",
+        emailClients: req.headers["user-agent"],
+        date: new Date(),
+      });
+
+      await tracker.save();
+    }
+
+    // 1x1 pixel transparent image response
+    const pixel = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      "base64"
+    );
+    res.setHeader("Content-Type", "image/gif");
+    res.setHeader("Content-Length", pixel.length);
+    res.end(pixel);
+
+    
+  } catch (err) {
+    res.status(500).end();
+  }
+};
 const openRate = async (req, res) => {
   const { guid } = req.params;
   const email = req.query.email?.toLowerCase().trim();
@@ -123,7 +164,44 @@ const openRate = async (req, res) => {
 };
 
 
-   
+
+
+     const clickRatex= async(req,res)=>{
+        try {
+          const { guid } = req.params;
+          const { url} = req.query;
+          // console.log(url);
+         const userAgent = req.headers['user-agent'];
+         const deviceInfo = userAgentParser(userAgent);
+         if(guid && url){
+            const updateTracker= await Track.findOneAndUpdate({trackerId:guid},{
+               $inc:{clicks:1},
+               $push:{stats:
+                 { 
+                   type:"click",
+                   date:Date.now(),
+                   devices:{type:deviceInfo.device.type || "unknown",os:deviceInfo.os.name || "unknown"},
+                 emailClients:deviceInfo.browser.name || "unknown",
+                 }
+               },
+             })
+             if(updateTracker){
+           res.redirect(url)
+             }else{
+           res.status(404).json({msg:error})
+             }
+             
+           }else{
+             res.status(404).json({msg:" no guid provided"})
+           }
+           } catch (error) {
+           res.status(500).json({msg:"something went wrong, try again later!"})
+             
+           }
+        }
+    const userAgentParser = require("ua-parser-js");
+const Track = require("../model/trackModel");
+const User = require("../model/userAuth");
 
 const clickRate = async (req, res) => {
   const { guid } = req.params;
