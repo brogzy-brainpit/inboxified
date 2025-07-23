@@ -140,9 +140,7 @@ const clickRate = async (req, res) => {
 
   console.log("Missing guid, url, or email");
   if (!guid || !url || !email) {
-    console.log(guid);
-    console.log(email);
-    console.log(url);
+   
     return res.status(400).json({ msg: "Missing guid, url, or email" });
   }
 
@@ -162,6 +160,7 @@ const clickRate = async (req, res) => {
 
     if (!subscriber.clicked) {
       subscriber.clicked = true;
+      subscriber.opened = true;
       subscriber.clickAt = new Date();
     }
 
@@ -179,20 +178,42 @@ const clickRate = async (req, res) => {
     await campaign.save();
 
     // 2️⃣ Update User Contact (push URL + timestamp)
-    const userId = campaign.trackingUser;
-    await User.updateOne(
-      { _id: userId, "contacts.email": email },
-      {
-        $inc: { "contacts.$.totalClicks": 1 },
-        $set: { "contacts.$.clickAt": new Date() }, // update every time (optional)
-        $push: {
+    // const userId = campaign.trackingUser;
+    const trackingUserId = campaign.trackingUser;
+    // await User.updateOne(
+    //   { _id: userId, "contacts.email": email },
+    //   {
+    //     $inc: { "contacts.$.totalClicks": 1 },
+    //     $set: { "contacts.$.clickAt": new Date() }, // update every time (optional)
+    //     $push: {
+    //       "contacts.$.clicks": {
+    //         url,
+    //         clickedAt: new Date(),
+    //       },
+    //     },
+    //   }
+    // );
+
+    const userUpdate = {
+      $inc: { "contacts.$.emailClicks": 1 },
+      $set: { "contacts.$.condition": "verified" }, // ✅ Mark as verified
+       $push: {
           "contacts.$.clicks": {
             url,
             clickedAt: new Date(),
+          }
           },
-        },
-      }
+    };
+
+    // ✅ Update user's contact in database
+    const updateResult = await User.updateOne(
+      { _id: trackingUserId, "contacts.email": email },
+      userUpdate
     );
+
+    if (updateResult.modifiedCount === 0) {
+      console.warn("⚠️ No contact updated. Possibly wrong email or user ID.");
+    }
 
     // 3️⃣ Redirect
     return res.redirect(url);
