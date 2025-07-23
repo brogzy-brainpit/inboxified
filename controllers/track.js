@@ -173,9 +173,11 @@ const clickRate = async (req, res) => {
       },
       emailClients: deviceInfo.browser.name || "unknown",
     });
-
-      userUpdate.$inc["contacts.$.totalOpens"] = 1;
-
+  if (!subscriber.clicked) {
+    userUpdate.$inc["contacts.$.totalOpens"] = 1;
+  }
+    userUpdate.$inc["contacts.$.totalClicks"] = 1;
+  
       campaign.clicks += 1;
       campaign.stats.push({
         type: "click",
