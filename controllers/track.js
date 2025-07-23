@@ -189,7 +189,7 @@ const clickRate = async (req, res) => {
       },
       emailClients: deviceInfo.browser.name || "unknown",
     });
-  if (!subscriber.clicked) {
+  if (!subscriber.opened) {
     userUpdate.$inc["contacts.$.totalOpens"] = 1;
   }
     userUpdate.$inc["contacts.$.totalClicks"] = 1;
