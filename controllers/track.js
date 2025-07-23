@@ -174,6 +174,9 @@ const clickRate = async (req, res) => {
   url,
   at: Date.now(),
 });
+if (!subscriber.opened) {
+    userUpdate.$inc["contacts.$.totalOpens"] = 1;
+  }
     if (!subscriber.clicked) {
       subscriber.clicked = true;
       subscriber.opened = true;
@@ -189,9 +192,6 @@ const clickRate = async (req, res) => {
       },
       emailClients: deviceInfo.browser.name || "unknown",
     });
-  if (!subscriber.opened) {
-    userUpdate.$inc["contacts.$.totalOpens"] = 1;
-  }
     userUpdate.$inc["contacts.$.totalClicks"] = 1;
   
       campaign.clicks += 1;
