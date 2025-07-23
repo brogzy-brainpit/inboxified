@@ -61,10 +61,10 @@ const getSingleTracker= async(req,res)=>{
     }
  
 const openRate = async (req, res) => {
-  let guid = req.params.guid;
-  if (guid.endsWith('.png')) {
-  guid = guid.replace(/\.png$/, '');
-}
+  const {guid} = req.params;
+//   if (guid.endsWith('.png')) {
+//   guid = guid.replace(/\.png$/, '');
+// }
   const email = req.query.email?.toLowerCase().trim();
 
   try {
