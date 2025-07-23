@@ -170,10 +170,16 @@ const clickRate = async (req, res) => {
           }
           },
     };
-     subscriber.clickedLinks.push({
-  url,
-  at: Date.now(),
-});
+ subscriber.clickedLinks = subscriber.clickedLinks || [];
+
+const alreadyClicked = subscriber.clickedLinks.some((link) => link.url === url);
+if (!alreadyClicked) {
+  subscriber.clickedLinks.push({
+    url,
+    at: new Date(),
+  });
+}
+
 if (!subscriber.opened) {
     userUpdate.$inc["contacts.$.totalOpens"] = 1;
   }
