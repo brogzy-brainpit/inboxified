@@ -162,10 +162,9 @@ const clickRate = async (req, res) => {
       subscriber.clicked = true;
       subscriber.opened = true;
       subscriber.clickAt = new Date();
-    }
-
-    campaign.clicks += 1;
-    campaign.stats.push({
+      subscriber.openAt = new Date();
+      campaign.opens += 1;
+      campaign.stats.push({
       type: "click",
       date: Date.now(),
       devices: {
@@ -175,7 +174,22 @@ const clickRate = async (req, res) => {
       emailClients: deviceInfo.browser.name || "unknown",
     });
 
-    await campaign.save();
+      userUpdate.$inc["contacts.$.totalOpens"] = 1;
+
+      campaign.clicks += 1;
+      campaign.stats.push({
+        type: "click",
+        date: Date.now(),
+        devices: {
+          type: deviceInfo.device.type || "unknown",
+          os: deviceInfo.os.name || "unknown",
+        },
+        emailClients: deviceInfo.browser.name || "unknown",
+      });
+  
+      await campaign.save();
+    }
+
 
     // 2️⃣ Update User Contact (push URL + timestamp)
     // const userId = campaign.trackingUser;
