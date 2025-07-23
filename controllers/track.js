@@ -211,8 +211,8 @@ if (!subscriber.opened) {
         emailClients: deviceInfo.browser.name || "unknown",
       });
   
-      await campaign.save();
     }
+      await campaign.save();
 
 
     // 2️⃣ Update User Contact (push URL + timestamp)
