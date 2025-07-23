@@ -160,7 +160,16 @@ const clickRate = async (req, res) => {
     if (!subscriber) {
       return res.status(404).json({ msg: "Subscriber not in campaign" });
     }
-
+ const userUpdate = {
+      $inc: { "contacts.$.emailClicks": 1 },
+      $set: { "contacts.$.condition": "verified" }, // ✅ Mark as verified
+       $push: {
+          "contacts.$.clicks": {
+            url,
+            clickedAt: new Date(),
+          }
+          },
+    };
     if (!subscriber.clicked) {
       subscriber.clicked = true;
       subscriber.opened = true;
@@ -212,17 +221,6 @@ const clickRate = async (req, res) => {
     //     },
     //   }
     // );
-
-    const userUpdate = {
-      $inc: { "contacts.$.emailClicks": 1 },
-      $set: { "contacts.$.condition": "verified" }, // ✅ Mark as verified
-       $push: {
-          "contacts.$.clicks": {
-            url,
-            clickedAt: new Date(),
-          }
-          },
-    };
 
     // ✅ Update user's contact in database
     const updateResult = await User.updateOne(
