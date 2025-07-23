@@ -14,6 +14,7 @@ const campaignContactSchema = new mongoose.Schema({
   clicked: { type: Boolean, default: false },
   openAt: { type: Date },
   clickAt: { type: Date },
+  clickedLinks:{type:Array,default:[]}
 });
 
 const trackSchema = new mongoose.Schema({

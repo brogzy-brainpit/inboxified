@@ -170,6 +170,10 @@ const clickRate = async (req, res) => {
           }
           },
     };
+     subscriber.clickedLinks.push({
+  url,
+  at: Date.now(),
+});
     if (!subscriber.clicked) {
       subscriber.clicked = true;
       subscriber.opened = true;
