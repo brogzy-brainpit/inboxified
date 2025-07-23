@@ -126,7 +126,7 @@ res.status(500).send('server error ')
     const{subject,mailList,ht,from,sendHTML,userId}=req.body
     
     
-    console.log(` the user id frorv ${userId}`)
+    // console.log(` the user id frorv ${userId}`)
 try {
     
   await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML,userId)

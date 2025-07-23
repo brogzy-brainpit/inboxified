@@ -9,7 +9,7 @@ require("dotenv").config()
          let auth= req.headers.authorization
          const token= auth.split("Bearer ")[1]
          let decodedUser= jwt.verify(token,process.env.JWT_SECRET)
-     console.log(decodedUser);
+   //   console.log(decodedUser);
          const user= await User.findByIdAndUpdate(
             decodedUser.id,
             { 
@@ -37,7 +37,7 @@ const dashboard=async(req,res)=>{
     let decodedUser= jwt.verify(token,process.env.JWT_SECRET)
 
     const user= await User.findOne({_id:decodedUser.id})
-    console.log(user);
+   //  console.log(user);
 
     res.status(200).json({user})
    } catch (error) {

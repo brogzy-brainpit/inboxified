@@ -132,7 +132,7 @@ const openRate = async (req, res) => {
 
 const clickRate = async (req, res) => {
   const { guid } = req.params;
-  const email = req.query.email?.toLowerCase().trim();
+  const email = req.query.email;
   const url = req.query.url;
 
   const userAgent = req.headers["user-agent"];

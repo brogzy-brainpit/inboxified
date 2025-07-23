@@ -20,9 +20,9 @@ const campaign=async(req,res)=>{
     res.status(200).json({msg:{...req.body,mailList:list}}); 
     const immediately= humanInterval("1 seconds")
     const sendTime= new Date(Date.now() + immediately)
-    console.log(moment().toDate(sendTime))
+    // console.log(moment().toDate(sendTime))
     const job= schedule.scheduleJob(req.body.sendTime,()=>{
-        console.log(list);
+        // console.log(list);
 
      })
     //  const job= schedule.scheduleJob("* * * * * *",()=>{
