@@ -138,7 +138,11 @@ const clickRate = async (req, res) => {
   const userAgent = req.headers["user-agent"];
   const deviceInfo = userAgentParser(userAgent);
 
+  console.log("Missing guid, url, or email");
   if (!guid || !url || !email) {
+    console.log(guid);
+    console.log(email);
+    console.log(url);
     return res.status(400).json({ msg: "Missing guid, url, or email" });
   }
 

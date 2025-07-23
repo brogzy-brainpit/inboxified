@@ -124,76 +124,8 @@ res.status(500).send('server error ')
    }
      const mail=async(req,res)=>{
     const{subject,mailList,ht,from,sendHTML,userId}=req.body
-    // const contact= mailList.split(",")
-    // console.log(ht)
-   // 1. Compile the raw HTML with Handlebars
- 
-let contacts=[
-  {
-    name: 'musa',
-    email: 'memetsamples@gmail.com',
-    group: [],
-    age: 0,
-    category: 'videography',
-    phone: '',
-    website: 'gumal.com',
-    state: 'null',
-    websiteRanking: 0,
-    status: 'active',
-    condition: 'verified',
-    signUpSource: 'uploaded csv',
-    emailOpens: 0,
-    emailSent: 0,
-    emailClicks: 0,
-    openRate: 0,
-    clickRate: 0,
-    createdAt: '2025-07-18T14:21:44.783Z',
-    _id: '687a5878c465d33098d763d1'
-  },
-  {
-    name: 'abba',
-    email: 'memetsamples@gmail.com',
-    group: [],
-    age: 0,
-    category: 'welding',
-    phone: '',
-    website: 'null',
-    state: 'null',
-    websiteRanking: 0,
-    status: 'active',
-    condition: 'unverified',
-    signUpSource: 'uploaded csv',
-    emailOpens: 0,
-    emailSent: 0,
-    emailClicks: 0,
-    openRate: 0,
-    clickRate: 0,
-    createdAt: '2025-07-18T14:21:44.783Z',
-    _id: '687a5878c465d33098d763d2'
-  },
-  {
-    name: 'hassan',
-    email: 'memetsamples@gmail.com',
-    group: [],
-    age: 0,
-    category: 'null',
-    phone: '',
-    website: 'null',
-    state: 'null',
-    websiteRanking: 0,
-    status: 'active',
-    condition: 'verified',
-    signUpSource: 'uploaded csv',
-    emailOpens: 0,
-    emailSent: 0,
-    emailClicks: 0,
-    openRate: 0,
-    clickRate: 0,
-    createdAt: '2025-07-18T14:21:44.783Z',
-    _id: '687a5878c465d33098d763d3'
-  }
-]
-
+    
+    
     console.log(` the user id frorv ${userId}`)
 try {
     
