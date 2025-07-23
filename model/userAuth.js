@@ -20,7 +20,7 @@ const contactSchema = new mongoose.Schema({
     emailClicks:{type:Number,default:0},
     openRate:{type:Number,default:0},
     clickRate:{type:Number,default:0},
-    newContent:{type:Object,default:{}},
+    clicks:{type:Object,default:{}},
     createdAt: { type: Date, default: Date.now }, // Timestamp for each subscriber
     // createdAt: { type: Date, default:"2024-07-18T00:00:00.000Z" }, // Timestamp for each subscriber
 });
