@@ -9,11 +9,12 @@ const {connectDb}=require("./db/connectDb");
 const auth=require("./routes/createUser");
 const trackEmail=require("./routes/trackEmaill");
 const subscriber=require("./routes/subscriber");
+const warmup=require("./routes/warmup");
 const template=require("./routes/template");
 const segment=require("./routes/segment");
 const groups=require("./routes/groups");
 const fields=require("./routes/fields");
-const publish=require("./routes/publish");
+const publish=require("./routes/publish"); 
 const blogs=require("./routes/blogs");
 const mail=require("./routes/mail");
 const campaign=require("./routes/campaign");
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 app.use("/api/v1/auth",auth)
 app.use("/api/v1/track",trackEmail)
 app.use("/api/v1/subscriber",subscriber)
+app.use("/api/v1/warmup",warmup)
 app.use("/api/v1/template",template)
 app.use("/api/v1/publish",publish) 
 app.use("/api/v1/blogs",blogs) 
