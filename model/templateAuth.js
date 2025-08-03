@@ -13,12 +13,19 @@ const authSchema= new mongoose.Schema({
           },
           templateName:{
             type:String,
-        },
+            unique:true,
+            required:[true,"please provide a template name"]
+           },
     price:{
         type:Number,
     },
-       tested:{
+    tested:{
         type:Boolean,
+        default:true,
+       },
+       public:{
+        type:Boolean,
+        default:true,
        },
        downloaded:{
         type:Number,
