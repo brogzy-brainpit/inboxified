@@ -17,10 +17,10 @@ const fetchPublished= async(req,res)=>{
 const fetchSinglePublished= async(req,res)=>{
   const {email,publisherId}= req.body;
   const {template}= req.params;
-  console.log(req.params); 
+  // console.log(req.params); 
   try {
     if(template){
-      const user= await Published.find({_id:template})
+      const user= await Published.find({templateName:template})
       if(!user){
        return res.status(404).send("no published template for this user!");
    
