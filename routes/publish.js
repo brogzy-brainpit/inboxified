@@ -1,8 +1,8 @@
 const express= require("express");
 const template=express.Router();
-const {fetchPublished,publishTemplate,fetchSinglePublished} =require("../controllers/publishing")
+const {fetchPublished,publishTemplate,fetchSinglePublished,deletePublishedTemplate} =require("../controllers/publishing")
 
-
+template.delete("/delete/:templateName", deletePublishedTemplate);
 template.get("/get",fetchPublished);
 template.get("/get/:template",fetchSinglePublished);
 template.post("/create",publishTemplate);
