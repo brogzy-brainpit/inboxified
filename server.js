@@ -15,7 +15,6 @@ const segment=require("./routes/segment");
 const groups=require("./routes/groups");
 const fields=require("./routes/fields");
 const publish=require("./routes/publish"); 
-const gifExport=require("./routes/gifExport"); 
 const blogs=require("./routes/blogs");
 const mail=require("./routes/mail");
 const campaign=require("./routes/campaign");
@@ -34,7 +33,6 @@ app.use("/api/v1/subscriber",subscriber)
 app.use("/api/v1/warmup",warmup)
 app.use("/api/v1/template",template)
 app.use("/api/v1/publish",publish) 
-app.use("/api/v1/gif",gifExport) 
 app.use("/api/v1/blogs",blogs) 
 app.use("/api/v1/segment",segment)
 app.use("/api/v1/groups",groups)

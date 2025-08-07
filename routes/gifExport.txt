@@ -1,0 +1,86 @@
+// const express= require("express");
+// const gifExport=express.Router();
+// const puppeteer = require('puppeteer');
+// const GIFEncoder = require('gifencoder');
+// const { createCanvas, loadImage } = require('canvas');
+// const path = require('path'); // ✅ THIS WAS MISSING
+// const fs = require('fs');     // ✅ Needed for writeFileSync, unlinkSync, etc.
+
+
+// gifExport.post('/export-gif', async (req, res) => {
+//   const htmlContent = req.body.html;
+
+//   if (!htmlContent) return res.status(400).json({ error: 'No HTML provided' });
+//   // ✅ Make sure "temp" folder exists
+// const tempDir = path.join(__dirname, '../temp');
+// if (!fs.existsSync(tempDir)) {
+//   fs.mkdirSync(tempDir);
+// }
+
+
+//   const tmpPath = path.join(__dirname, '../temp/email.html');
+//   fs.writeFileSync(tmpPath, htmlContent);
+
+//   const width = 600;
+//   const viewportHeight = 1300;
+//   const scrollStep = 5; // default was 20
+// const fps = 10;       // lower FPS to reduce file size
+
+//   const encoder = new GIFEncoder(width, viewportHeight);
+//   const gifPath = path.join(__dirname, '../temp/output.gif');
+//   const gifStream = fs.createWriteStream(gifPath);
+//   encoder.createReadStream().pipe(gifStream);
+
+//   encoder.start();
+//   encoder.setRepeat(0);
+//   encoder.setDelay(1000 / fps);
+//   encoder.setQuality(10);
+
+//   const browser = await puppeteer.launch({ headless: true });
+//   const page = await browser.newPage();
+//   await page.setViewport({ width, height: viewportHeight });
+
+//   await page.goto('file://' + tmpPath, { waitUntil: 'networkidle0' });
+
+//   // Get total scrollable height
+//   const totalHeight = await page.evaluate(() => {
+//     return document.documentElement.scrollHeight;
+//   });
+
+//   let scrollY = 0;
+//   while (scrollY + viewportHeight <= totalHeight) {
+//     await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+//     // await page.waitForTimeout(1000 / fps);
+//      await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+
+//     const screenshot = await page.screenshot({
+//       clip: { x: 0, y: 0, width, height: viewportHeight },
+//     });
+
+//     const img = await loadImage(screenshot);
+//     const canvas = createCanvas(width, viewportHeight);
+//     const ctx = canvas.getContext('2d');
+//     ctx.drawImage(img, 0, 0, width, viewportHeight);
+//     encoder.addFrame(ctx);
+
+//     scrollY += scrollStep;
+//   }
+
+//   encoder.finish();
+//   await browser.close();
+//   fs.unlinkSync(tmpPath);
+
+//   gifStream.on('finish', () => {
+//     console.log('gif finished and downloaded')
+//     res.download(gifPath, 'email-scroll-preview.gif', () => {
+//       fs.unlinkSync(gifPath);
+//     });
+//   });
+// });
+// // gifExport.post('/export-gif', async (req, res) => {
+// //    res.status(200).json({data:'sent'})
+// // });
+
+
+
+// module.exports= gifExport 
