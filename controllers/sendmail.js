@@ -26,7 +26,7 @@ try {
         secure: true, // use SSL  
          auth:{ 
                 user:'dangabarin2020@gmail.com',
-                pass:"yabccxpsciuoynqs"
+                pass:"xuiqdosfgyhdwaxh"
             },      
       } 
     const mail_config={
