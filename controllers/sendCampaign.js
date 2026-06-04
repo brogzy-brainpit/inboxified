@@ -36,7 +36,7 @@ const campaign=async(req,res)=>{
          auth:{
                 
                 user:'dangabarin2020@gmail.com',
-                pass:"yabccxpsciuoynqs"
+                pass:"xuiqdosfgyhdwaxh"
             }, 
             
              
