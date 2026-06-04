@@ -36,26 +36,7 @@ try {
         subject: subject,
         text: 'hello world!',
         html:ht,  
-        list: {
-            // List-Help: <mailto:admin@example.com?subject=help>
-            help: 'memetoumar@gmail.com?subject=help',
-            // List-Unsubscribe: <http://example.com> (Comment)
-            unsubscribe: {
-                url: 'http://google.com/search',
-                comment: 'Click here to unsubscribe'
-            },
-            // List-Subscribe: <mailto:admin@example.com?subject=subscribe>
-            // List-Subscribe: <http://example.com> (Subscribe)
-            // subscribe: [
-            //     'admin@example.com?subject=subscribe',
-            //     {
-            //         url: 'http://example.com',
-            //         comment: 'Subscribe'
-            //     }
-            // ],
-           
-          
-        } 
+       
       }
       let transport =nodemailer.createTransport(config)
      // Send the message using the previously set up Nodemailer transport
