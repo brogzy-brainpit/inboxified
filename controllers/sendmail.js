@@ -25,14 +25,14 @@ try {
         port: 465,
         secure: true, // use SSL  
          auth:{ 
-                user:'dangabarin2020@gmail.com',
-                pass:"xuiqdosfgyhdwaxh"
+                user:'designermemet@gmail.com',
+                pass:"pkfhrjbodksvichz"
             },      
       } 
     const mail_config={
-        from :'memet omar <dangabarin2020@gmail.com>',
+        from :'designermemet@gmail.com',
         to:mailList,
-        replyTo:"dangabarin2020@gmail.com",
+        replyTo:"designermemet@gmail.com",
         subject: subject,
         text: 'hello world!',
         html:ht,  
