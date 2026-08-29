@@ -18,7 +18,7 @@ const amqp={
 const previewMail=async(req,res)=>{
     const{subject,mailList,ht}=req.body
     const list= mailList.split(",")
-    console.log(list)
+    // console.log(list)
 try {
     let config= {
         host:"smtp.gmail.com",
@@ -94,7 +94,7 @@ try {
     console.log(sendTime)
     console.log(subject)
     console.log(mailList )
-    console.log(ht)
+    // console.log(ht)
     let contact=[
         {
             name:'kwatani',
