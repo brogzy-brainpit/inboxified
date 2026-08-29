@@ -9,8 +9,8 @@ require("dotenv").config();
 
 
 const amqp={
-    queue:"mailin",
     // amqp:"amqp://localhost",
+    queue:"campaign-queue",
     amqp:process.env.AMQP_URL  // global
   }
 
@@ -122,15 +122,12 @@ res.status(500).send('server error ')
 
        
    }
-     const mail=async(req,res)=>{
-    const{subject,mailList,ht,from,sendHTML,userId}=req.body
-    
-    
-    // console.log(` the user id frorv ${userId}`)
-try {
-    
-  await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML,userId)
-   res.status(200).send(`All messages queued, ready to start sending!`)
+   
+   const mail=async(req,res)=>{
+    const{subject,mailList,ht,from,sendHTML,userId,text}=req.body
+    try {
+  await rabbitProvider(amqp,subject,list=mailList,ht,from,sendHTML,userId,text)
+   res.status(200).send(`All messages queued, ready to start sending at the specified time!`)
         
 }catch{
 res.status(500).send('server error ')
