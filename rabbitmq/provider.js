@@ -76,7 +76,7 @@ const personalizedHtml = compileTemplate(contact);
               subject: `${subject} ${sent + 1}`,
               html: personalizedHtml, 
               text, 
-              sendHTML:sendHTML,
+              sendHTML,
               userId,
               id: apiKeys()
             }, () => {
