@@ -126,11 +126,17 @@ res.status(500).send('server error ')
    const mail=async(req,res)=>{
     const{subject,mailList,htmlEmail,from,sendHTML,userId,plainText}=req.body
     try {
-  await rabbitProvider(amqp,subject,list=mailList,htmlEmail,from,sendHTML,userId,plainText)
+  await rabbitProvider(amqp,subject,mailList,htmlEmail,from,sendHTML,userId,plainText)
    res.status(200).send(`All messages queued, ready to start sending at the specified time!`)
         
-}catch{
-res.status(500).send('server error ')
+} catch (error) {
+    console.error("❌ /mail error:", error.message)
+    console.error(error.stack)
+
+    res.status(500).json({
+        error: "server error",
+        message: error.message
+    })
 }
 
        

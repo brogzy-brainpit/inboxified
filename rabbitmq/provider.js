@@ -11,7 +11,12 @@ const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plain
         return options.inverse(this)
       }
   });
-  const compileTemplate = Handlebars.compile(html);
+// Only compile HTML if HTML sending is enabled
+  let compileTemplate = null;
+
+  if (sendHTML && html) {
+    compileTemplate = Handlebars.compile(html);
+  }
 
   return new Promise((resolve, reject) => {
     amqplib.connect(amqp.amqp, (err, connection) => {
@@ -65,8 +70,11 @@ const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plain
 
 
 const contact = sanitizeContact(contacts[sent]);
-const personalizedHtml = compileTemplate(contact);
+let personalizedHtml = null;
 
+if (sendHTML && compileTemplate) {
+  personalizedHtml = compileTemplate(contact);
+}
           //  console.log(personalizedHtml)
           
           

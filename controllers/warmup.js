@@ -8,11 +8,11 @@ require("dotenv").config()
 const addWarmupInbox = async (req, res) => {
   try {
     const { id } = req.params;
-    const { inbox, appPassword, provider,isListener, dailyLimit, dailyIncrease,firstName, } = req.body;
+    const { inbox, appPassword, provider,canSendCampaign, isWarmUpInbox, dailyLimit, dailyIncrease,firstName, } = req.body;
 
     // 1. Create transporter
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: provider,
       auth: {
         user: inbox,
         pass: appPassword,
@@ -36,18 +36,19 @@ const addWarmupInbox = async (req, res) => {
       (entry) => entry.inbox.toLowerCase() === inbox.toLowerCase()
     );
     if (alreadyExists) {
-      return res.status(409).json({ message: "Inbox already added." });
+      return res.status(409).json({ message: "Inbox already exists." });
     }
 
     // 5. Add inbox
     user.warmupInboxes.push({
       inbox, 
       appPassword,
-      isListener,
       provider,
-      dailyLimit,
       firstName,
-      dailyIncrease, 
+      canSendCampaign,
+      warmUpInbox:isWarmUpInbox,
+      warmupDailyLimit:dailyLimit,
+      warmupDailyIncrease:dailyIncrease, 
       createdAt: Date.now(),
     });
 
