@@ -11,12 +11,25 @@ const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plain
         return options.inverse(this)
       }
   });
-// Only compile HTML if HTML sending is enabled
-  let compileTemplate = null;
 
-  if (sendHTML && html) {
-    compileTemplate = Handlebars.compile(html);
-  }
+  let compileHtmlTemplate = null;
+let compilePlainTextTemplate = null;
+let compileSubjectTemplate = null;
+
+// Only compile HTML if HTML sending is enabled
+if (sendHTML && html) {
+  compileHtmlTemplate = Handlebars.compile(html);
+}
+
+if (plainText) {
+  compilePlainTextTemplate = Handlebars.compile(plainText);
+}
+
+if (subject) {
+  compileSubjectTemplate = Handlebars.compile(subject);
+}
+
+ 
 
   return new Promise((resolve, reject) => {
     amqplib.connect(amqp.amqp, (err, connection) => {
@@ -64,26 +77,36 @@ const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plain
             const sanitizeContact = (c) => ({
   ...c,
   website: (c.website && c.website !== 'null') ? c.website : '',
-  websiteRanking: c.websiteRanking || ' ',
+  websiteRanking: c.websiteRanking ?? ' ',
   name: (c.name && c.name !== 'null') ? c.name : '',
-});
-
-
+}); 
+ 
 const contact = sanitizeContact(contacts[sent]);
-let personalizedHtml = null;
 
-if (sendHTML && compileTemplate) {
-  personalizedHtml = compileTemplate(contact);
+let personalizedHtml = null;
+let personalizedSubject = null;
+let personalizedPlainText = null;
+
+if (sendHTML && compileHtmlTemplate) {
+  personalizedHtml = compileHtmlTemplate(contact);
 }
-          //  console.log(personalizedHtml)
+
+if (compilePlainTextTemplate) {
+  personalizedPlainText = compilePlainTextTemplate(contact);
+}
+if (compileSubjectTemplate) {
+  personalizedSubject = compileSubjectTemplate(contact);
+}
+      
+//  console.log(personalizedHtml)
           
           
             sender({
               from: from,
               to: contact.email,
-              subject: `${subject} ${sent + 1}`,
+              subject: `${personalizedSubject}`,
               html: personalizedHtml, 
-              plainText, 
+              plainText: personalizedPlainText, 
               sendHTML,
               userId,
               id: apiKeys()
