@@ -17,85 +17,173 @@ if(!userId){
 
   const buildSubscriberFilterQuery = (filters) => {
     return filters.map(filter => {
-      const { field, operator, value, value2 } = filter;
-      if (operator === 'contains') {
-        return { $regexMatch: { input: `$$contact.${field}`, regex: value, options: 'i' } };
-      }
-      if (operator === 'does-not-contains') {
-        return { $not: { $regexMatch: { input: `$$contact.${field}`, regex: value, options: 'i' } }};
-      }
-      if (operator === 'isBefore') {
-        const cutoffDate = moment.utc(value).startOf('day').toDate();
-        return { $lt: [`$$contact.${field}`, cutoffDate] }
-      }
-      if (operator === 'isAt') {
-        const startoffDate = moment.utc(value).startOf('day').toDate();
-        const cutoffDate = moment.utc(value).endOf('day').toDate();
-      //  console.log(cutoffDate)
-        return{$and:[{ $gte: [`$$contact.${field}`, startoffDate] }
-        ,{ $lte: [`$$contact.${field}`, cutoffDate] }]}
-      }
-      if (operator === 'isAfter') { 
-        const cutoffDate = moment.utc(value).startOf('day').toDate();
-          return { $gt: [`$$contact.${field}`, cutoffDate] }
-        }
-        if (operator === 'isBetween') { 
-          const startDate = moment.utc(value).startOf('day').toDate();
-          const cutoffDate = moment.utc(value2).endOf('day').toDate();
-          return  {$and:[{ $gte: ["$$contact.createdAt", startDate] }
-          ,{ $lte: ["$$contact.createdAt", cutoffDate] }]}
-          }
-      if (operator === 'isInTheLast') {
-        let value3; 
-        if(value2=="months"){
-          value3="month"
-        }else if(value2=="days"){
-          value3="day"
-        }else if(value2=="hours"){
-          value3="hour"
-        }else if(value2=="minutes"){
-              value3="minute"
-        }
-        // const oneDayAgoStart = moment().subtract(1, "minutes").startOf("minute").valueOf();
+        const { field, operator, value, value2 } = filter;
 
-        // const oneDayAgoStart = moment().subtract(1, "days").startOf("day").toDate();
-        const oneDayAgoStart = moment.utc().subtract(parseInt(value), value2).startOf(value3).toDate();
-        const oneDayAgoEnd = moment.utc().subtract(parseInt(value), value2).endOf(value3).toDate();
-        // const cutoffDate = moment.utc(value).startOf('day').toDate();
-// const oneDayAgoEnd = moment().subtract(28, "minutes").endOf("minute").valueOf();
-        // const targetDate = moment().subtract(value, value2).toDate();
-        // return { [field]: { $gte: targetDate } };
-        console.log(oneDayAgoStart,oneDayAgoEnd)
-        return  {$and:[{ $gte: ["$$contact.createdAt", oneDayAgoStart] }
-        ,{ $lte: ["$$contact.createdAt", oneDayAgoEnd] }]}
-      }  
-      if (operator === 'is') {  
-        return { $eq: [`$$contact.${field}`, value] }
-      }
-      if (operator === 'is not') { 
-        return {$not: { $eq: [`$$contact.${field}`, value] }}
-      }
-      if (operator === 'equals') { 
-        return { $eq: [`$$contact.${field}`, parseInt(value)] }
-      }
-      if (operator === 'isLessThan') { 
-        return { $lt: [`$$contact.${field}`, parseInt(value)] }
-      }
-      if (operator === 'isLessThanOrEqual') { 
-        return { $lte: [`$$contact.${field}`, parseInt(value)] }
-      }
-      if (operator === 'isGreaterThan') { 
-        return { $gt: [`$$contact.${field}`, parseInt(value)] }
-      }
-      if (operator === 'isGreaterThanOrEqual') { 
-        return { $gte: [`$$contact.${field}`, parseInt(value)] }
-      }
-      
-  
-      // Add more operator handling as needed
-      return {};
+        if (operator === "contains") {
+            return {
+                $regexMatch: {
+                    input: `$$contact.${field}`,
+                    regex: value,
+                    options: "i"
+                }
+            };
+        }
+
+        if (operator === "does-not-contains") {
+            return {
+                $not: {
+                    $regexMatch: {
+                        input: `$$contact.${field}`,
+                        regex: value,
+                        options: "i"
+                    }
+                }
+            };
+        }
+
+        if (operator === "isBefore") {
+            const cutoffDate = moment
+                .utc(value)
+                .startOf("day")
+                .toDate();
+
+            return {
+                $lt: [`$$contact.${field}`, cutoffDate]
+            };
+        }
+
+        if (operator === "isAt") {
+            const startDate = moment
+                .utc(value)
+                .startOf("day")
+                .toDate();
+
+            const endDate = moment
+                .utc(value)
+                .endOf("day")
+                .toDate();
+
+            return {
+                $and: [
+                    {
+                        $gte: [`$$contact.${field}`, startDate]
+                    },
+                    {
+                        $lte: [`$$contact.${field}`, endDate]
+                    }
+                ]
+            };
+        }
+
+        if (operator === "isAfter") {
+            const cutoffDate = moment
+                .utc(value)
+                .endOf("day")
+                .toDate();
+
+            return {
+                $gt: [`$$contact.${field}`, cutoffDate]
+            };
+        }
+
+        if (operator === "isBetween") {
+            const startDate = moment
+                .utc(value)
+                .startOf("day")
+                .toDate();
+
+            const endDate = moment
+                .utc(value2)
+                .endOf("day")
+                .toDate();
+
+            return {
+                $and: [
+                    {
+                        $gte: [`$$contact.${field}`, startDate]
+                    },
+                    {
+                        $lte: [`$$contact.${field}`, endDate]
+                    }
+                ]
+            };
+        }
+
+        if (operator === "isInTheLast") {
+            const cutoffDate = moment
+                .utc()
+                .subtract(parseInt(value), value2)
+                .toDate();
+
+            return {
+                $gte: [`$$contact.${field}`, cutoffDate]
+            };
+        }
+
+        if (operator === "is") {
+            return {
+                $eq: [`$$contact.${field}`, value]
+            };
+        }
+
+        if (operator === "is not") {
+            return {
+                $not: {
+                    $eq: [`$$contact.${field}`, value]
+                }
+            };
+        }
+
+        if (operator === "equals") {
+            return {
+                $eq: [
+                    `$$contact.${field}`,
+                    parseInt(value)
+                ]
+            };
+        }
+
+        if (operator === "isLessThan") {
+            return {
+                $lt: [
+                    `$$contact.${field}`,
+                    parseInt(value)
+                ]
+            };
+        }
+
+        if (operator === "isLessThanOrEqual") {
+            return {
+                $lte: [
+                    `$$contact.${field}`,
+                    parseInt(value)
+                ]
+            };
+        }
+
+        if (operator === "isGreaterThan") {
+            return {
+                $gt: [
+                    `$$contact.${field}`,
+                    parseInt(value)
+                ]
+            };
+        }
+
+        if (operator === "isGreaterThanOrEqual") {
+            return {
+                $gte: [
+                    `$$contact.${field}`,
+                    parseInt(value)
+                ]
+            };
+        }
+
+        return {};
     });
-  };
+};
+
+
 // this one worked
   // const buildAggregationFilter = (conditions) => {
   //   return conditions.map(condition => {
@@ -109,18 +197,19 @@ if(!userId){
   //     }
   //   });
   // };
-    const buildAggregationFilter = (conditions) => {
-    return conditions.map(condition => {
-      const { filters } = condition;
-      const mongoFilters = buildSubscriberFilterQuery(filters);
-  
-      if (mongoFilters.length > 1) {
-        return { $and: mongoFilters };
-      } else {
-        return mongoFilters[0];
-      }
+   const buildAggregationFilter = (segments) => {
+    return segments.map(segment => {
+        const conditions = buildSubscriberFilterQuery(segment.filters);
+
+        if (conditions.length === 1) {
+            return conditions[0];  
+        }
+
+        return {
+            $and: conditions
+        };
     });
-  }; 
+};
 
   const ObjectId = mongoose.Types.ObjectId;
   // const result = await User.aggregate([
