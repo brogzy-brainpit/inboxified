@@ -74,12 +74,13 @@ if (subject) {
               });
             }
 
-            const sanitizeContact = (c) => ({
+          
+const sanitizeContact = (c) => ({
   ...c,
   website: (c.website && c.website !== 'null') ? c.website : '',
-  websiteRanking: c.websiteRanking ?? ' ',
+  websiteRanking: c.websiteRanking ?? 0,
   name: (c.name && c.name !== 'null') ? c.name : '',
-}); 
+});
  
 const contact = sanitizeContact(contacts[sent]);
 
