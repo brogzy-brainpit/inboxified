@@ -13,7 +13,6 @@ const emailStats = {};
 const publishTrack= async(req,res)=>{
   //  res.status(200).json({msg:req.body})
    try {
-    const {campaign,open,trackerId,createdAt,totalSubscribers,clicks,emailClients,readDuration}= req.body
    
     let newTracker={...req.body}
     // console.log(req.body);

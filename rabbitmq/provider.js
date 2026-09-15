@@ -2,7 +2,7 @@ const amqplib = require('amqplib/callback_api');
 const Handlebars = require('handlebars');
 const apiKeys = require("../API");
 
-const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plainText) => {
+const rabbitProvider = (amqp, subject, contacts, html,from,sendHTML,userId,plainText,trackerId) => {
   Handlebars.registerHelper('gt',function
     (a, b, options) {
       if(a != null && a!== '' && a > b ){
@@ -103,14 +103,16 @@ if (compileSubjectTemplate) {
           
           
             sender({
-              from: from,
+              from,
               to: contact.email,
-              subject: `${personalizedSubject}`,
-              html: personalizedHtml, 
-              plainText: personalizedPlainText, 
+              subject: personalizedSubject,
+              html: personalizedHtml,
+              plainText: personalizedPlainText,
               sendHTML,
               userId,
-              id: apiKeys()
+              trackerId,
+              contactEmail: contact.email,
+              id: apiKeys() 
             }, () => {
               sent++;
               sendNext();

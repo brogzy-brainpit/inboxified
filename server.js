@@ -19,6 +19,9 @@ const blogs=require("./routes/blogs");
 const mail=require("./routes/mail");
 const campaign=require("./routes/campaign");
 const preview=require("./routes/preview");
+const conversationRoutes = require("./routes/conversationRoutes");
+
+
 const port= process.env.PORT||5000;
 app.use(express.json({limit:"20mb"})) 
 app.use(cors())
@@ -40,8 +43,7 @@ app.use("/api/v1/fields",fields)
 app.use("/api/v1/mail",mail);
 app.use("/api/v1/campaign",campaign);
 app.use("/preview-inboxified.com",preview);
- 
-
+app.use("/api/v1/conversations",conversationRoutes); 
 
 
 // schedule.scheduleJob('* * * * * *', checkBounces);
